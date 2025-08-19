@@ -1,0 +1,29 @@
+# argocd/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: playground-app
+  namespace: argocd
+  labels:
+    app: playground
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/TON-USERNAME/mon-argocd-demo  # ← Change par ton repo
+    targetRevision: main
+    path: k8s-manifests  # Dossier contenant tes manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true      # Supprime les ressources supprimées du Git
+      selfHeal: true   # Corrige automatiquement les drifts
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
