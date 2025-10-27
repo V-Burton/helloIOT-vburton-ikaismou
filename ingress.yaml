@@ -3,6 +3,9 @@ kind: Ingress
 metadata:
   name: hello-iot-ingress
   namespace: dev
+  annotations:
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
 spec:
   rules:
   - host: hello-iot.local
@@ -14,4 +17,8 @@ spec:
           service:
             name: hello-iot-service
             port:
-              number: 80
+              number: 8888
+  tls:
+  - hosts:
+    - hello-iot.local
+    secretName: hello-iot-tls
