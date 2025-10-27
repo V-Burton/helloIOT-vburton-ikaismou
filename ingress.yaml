@@ -23,7 +23,7 @@ spec:
     - name: redirect-https
     services:
     - name: hello-iot-service
-      port: 8888
+      port: 80
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -38,6 +38,6 @@ spec:
     match: Host(`hello-iot.local`)
     services:
     - name: hello-iot-service
-      port: 8888
+      port: 80
   tls:
     certResolver: default
