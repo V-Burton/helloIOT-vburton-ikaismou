@@ -1,24 +1,43 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
 metadata:
-  name: hello-iot-ingress
+  name: redirect-https
   namespace: dev
-  annotations:
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
-    traefik.ingress.kubernetes.io/redirect-permanent: "true"
 spec:
-  rules:
-  - host: hello-iot.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: hello-iot-service
-            port:
-              number: 8888
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hello-iot-ingress-http
+  namespace: dev
+spec:
+  entryPoints:
+    - web
+  routes:
+  - kind: Rule
+    match: Host(`hello-iot.local`)
+    middlewares:
+    - name: redirect-https
+    services:
+    - name: hello-iot-service
+      port: 8888
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hello-iot-ingress-https
+  namespace: dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`hello-iot.local`)
+    services:
+    - name: hello-iot-service
+      port: 8888
   tls:
-  - hosts:
-    - hello-iot.local
-    secretName: hello-iot-tls
+    certResolver: default
